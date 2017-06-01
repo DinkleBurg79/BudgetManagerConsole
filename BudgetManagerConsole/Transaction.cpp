@@ -61,9 +61,128 @@ string Transaction::getName() const
 	return name;
 }
 
+Change Transaction::getTypeOfTransaction() const
+{
+	return typeOfTransaction;
+}
+
+void Transaction::setItemPurchased(Item item)
+{
+	// Create unique_ptr<Item> of item
+	auto purchasedItem = make_unique<Item>(item);
+	if (item.getCost() < amountBefore)
+	{
+		switch (typeOfTransaction)
+		{
+		case Change::itemPurchased:
+			// Switch previous item with new purchased item
+			itemPurchased = move(purchasedItem);
+			// Update amountAfter with cost of new item
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			break;
+		case Change::deposit:
+			// Instantiate itemPurchasd with item
+			itemPurchased = move(purchasedItem);
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			typeOfTransaction = Change::itemPurchased;
+			break;
+		case Change::withdraw:
+			itemPurchased = move(purchasedItem);
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			typeOfTransaction = Change::itemPurchased;
+			break;
+		}
+	}
+	else
+	{
+		return;
+	}
+}
+
+void Transaction::setItemPurchased(unique_ptr<Item> item)
+{
+	if (item->getCost() < amountBefore)
+	{
+		switch (typeOfTransaction)
+		{
+		case Change::itemPurchased:
+			// Switch previous item with new purchased item
+			itemPurchased = move(item);
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			break;
+		case Change::deposit:
+			itemPurchased = move(item);
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			break;
+		case Change::withdraw:
+			itemPurchased = move(item);
+			changeInBalance = itemPurchased->getCost();
+			amountAfter = amountBefore - changeInBalance;
+			break;
+		}
+	}
+	else
+	{
+		return;
+	}
+}
+
+void Transaction::setAmountBefore(float amount)
+{
+	// Checks if amount is negative
+	if (amount <= 0)
+	{
+		return;
+	}
+	else
+	{
+		// Update amountBefore, changeInBalance, and typeOfTransaction
+		amountBefore = amount;
+		changeInBalance = amountAfter - amountBefore;
+		// Checks if type of transaction is deposit or withdraw
+		if (changeInBalance < 0)
+		{
+			typeOfTransaction = Change::withdraw;
+		}
+		else 
+		{
+			typeOfTransaction = Change::deposit;
+		}
+	}
+}
+
 float Transaction::getAmountBefore() const
 {
 	return amountBefore;
+}
+
+void Transaction::setAmountAfter(float amount)
+{
+	// Checks if amount if negative
+	if (amount <= 0)
+	{
+		return;
+	}
+	else
+	{
+		// Update amountAfter, changeInBalance, and typeOfTransaction
+		amountAfter = amount;
+		changeInBalance = amountAfter - amountBefore;
+		// Checks if type of transaction is deposit or withdraw
+		if (changeInBalance < 0)
+		{
+			typeOfTransaction = Change::withdraw;
+		}
+		else
+		{
+			typeOfTransaction = Change::deposit;
+		}
+	}
 }
 
 float Transaction::getAmountAfter() const
@@ -78,7 +197,22 @@ float Transaction::getChangeInBalance() const
 
 string Transaction::toString()
 {
-	string transaction{ "Name: " };
+	string transaction{};
+	switch (typeOfTransaction)
+	{
+	case Change::deposit:
+		transaction += "Deposit\n";
+		break;
+	case Change::withdraw:
+		transaction += "Withdraw\n";
+		break;
+	case Change::itemPurchased:
+		transaction += "Item Purchased\n";
+		break;
+	default:
+		break;
+	}
+	transaction += "Description: ";
 	transaction += name + "\nAmount Before: ";
 	transaction += to_string(amountBefore);
 	transaction += "\nAmount After: ";
@@ -86,10 +220,14 @@ string Transaction::toString()
 	transaction += "\nChange in balance: ";
 	transaction += to_string(changeInBalance);
 	
-	if (typeOfTransaction == Change::itemPurchased)
+	switch (typeOfTransaction)
 	{
+	case Change::itemPurchased:
 		transaction += "\nItem purchased: " + itemPurchased->getName();
 		transaction += "\nCost: " + to_string(itemPurchased->getCost());
+		break;
+	default:
+		break;
 	}
 	return transaction;
 }

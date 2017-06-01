@@ -9,6 +9,30 @@ Account::Account(string name, float balance)
 
 }
 
+Account::Account(Account&& rhs)
+	: name(move(rhs.name)),
+	balance(move(rhs.balance)),
+	history(move(rhs.history))
+{
+
+}
+
+Account& Account::operator=(Account&& rhs)
+{
+	// If addresses of both objects are same, then return object
+	if (this == &rhs)
+	{
+		return *this;
+	}
+	else
+	{
+		name = move(rhs.name);
+		balance = move(rhs.balance);
+		history = move(rhs.history);
+		return *this;
+	}
+}
+
 string Account::getName() const
 {
 	return name;
@@ -24,44 +48,136 @@ float Account::getBalance() const
 	return balance;
 }
 
-void Account::addFunds(float amount)
+void Account::addFunds(float amount, string name)
 {
-	// Checks for negative amount removed
+	// Checks for negative amount added in
 	if (amount <= 0)
 	{
 		return;
 	}
-	balance += amount;
+	else
+	{
+		// Make unique_ptr<Transaction> to store information about this transaction,
+		// and store this UPtr into history
+		auto deposit = make_unique<Transaction>(getBalance(), balance + amount, name);
+		history.push_back(move(deposit));
+		// Update balance
+		balance += amount;
+	}
 }
 
-void Account::deductFunds(float amount)
+void Account::deductFunds(float amount, string name)
 {
-	// Checks for overdraw or negative amount
+	// Checks for overdraw or negative amount deducted
 	if (amount <= 0 || (balance - amount) < 0)
 	{
 		return;
 	}
 	else
 	{
+		// Make unique_ptr<Transaction> to store information about this transaction,
+		// and store this UPtr into history
+		auto withdraw = make_unique<Transaction>(getBalance(), balance - amount, name);
+		history.push_back(move(withdraw));
+		// Update balance
 		balance -= amount;
 	}
 }
 
-void Account::purchaseItem(unique_ptr<Item> purchase)
+void Account::purchaseItem(Item purchase, string name)
 {
-	balance -= purchase->getCost();
-	itemsPurchased.push_back(move(purchase));
+	// Checks if cost of item is more than balance
+	if (purchase.getCost() > balance)
+	{
+		return;
+	}
+	else
+	{
+		// Make unique_ptr<Transaction> to store information about this transaction,
+		// and store this UPtr into history
+		auto purchaseUPtr = make_unique<Transaction>(balance, purchase, name);
+		balance -= purchaseUPtr->getChangeInBalance();
+		// Update balance
+		history.push_back(move(purchaseUPtr));
+	}
 }
 
-void Account::purchaseItem(Item purchase)
+void Account::purchaseItem(unique_ptr<Item> purchase, string name)
 {
-	unique_ptr<Item> item;
-	item.reset(new Item(purchase));
-	balance -= item->getCost();
-	itemsPurchased.push_back(move(item));
+	// Checks if cost of item is more than balance
+	if (purchase->getCost() > balance)
+	{
+		return;
+	}
+	else
+	{
+		// Make unique_ptr<Transaction> to store information about this transaction,
+		// and store this UPtr into history
+		auto purchaseUPtr = make_unique<Transaction>(balance, move(purchase), name);
+		balance -= purchaseUPtr->getChangeInBalance();
+		// Update balance
+		history.push_back(move(purchaseUPtr));
+	}
 }
 
-//string Account::getHistory()
-//{
-	
-//}
+string Account::getHistoryOfDepositsAndWithdraws()
+{
+	string historyOfPurchases{};
+	for (auto itr = history.begin(), end = history.end(); itr != end; ++itr)
+	{
+		// Iterate through history and check type of transaction for deposits,
+		// and withdraws. Then append string to include string information about
+		// the Transaction. Include two new line escape sequences for other deposits
+		// or withdraws, and for a blank line.
+		switch ((*itr)->getTypeOfTransaction())
+		{
+		case Change::deposit:
+			historyOfPurchases += (*itr)->toString();
+			historyOfPurchases += "\n\n";
+			break;
+		case Change::withdraw:
+			historyOfPurchases += (*itr)->toString();
+			historyOfPurchases += "\n\n";
+			break;
+		default:
+			break;
+		}
+	}
+	return historyOfPurchases;
+}
+
+string Account::getHistoryOfPurchases()
+{
+	string historyOfPurchases{};
+	// Iterate through history and check type of transaction for item purchases.
+	// Then append string to include string information about the Transaction.
+	// Include two new line escape sequences for other item purchases, and for 
+	// a blank line.
+	for (auto itr = history.begin(), end = history.end(); itr != end; ++itr)
+	{
+		switch ((*itr)->getTypeOfTransaction())
+		{
+		case Change::itemPurchased:
+			historyOfPurchases += (*itr)->toString();
+			historyOfPurchases += "\n\n";
+			break;
+		default:
+			break;
+		}
+	}
+	return historyOfPurchases;
+}
+
+string Account::getHistory()
+{
+	string historyString{};
+	// Iterate through history and append string to include information on
+	// deposits, withdraws, or item purchases. Include two new line escape
+	// sequences for other Transactions and for a blank line.
+	for (auto itr = history.begin(), end = history.end(); itr != end; ++itr)
+	{
+		historyString += (*itr)->toString();
+		historyString += "\n\n";
+	}
+	return historyString;
+}

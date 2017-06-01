@@ -22,6 +22,10 @@ public:
 	// Create transaction based on amount before and unique_ptr to item
 	Transaction(float amountBefore, std::unique_ptr<Item> item, std::string name = std::string());
 
+	// Copy constructor and copy assignment operator implicitly deleted due to unique_ptr<Item>
+
+	// Move constructor and move assignment operator still implicitly declared
+
 	// Sets name of transaction;
 	template <typename Name>
 	void setName(Name&& newName)
@@ -32,12 +36,27 @@ public:
 	// Returns name of the transaction
 	std::string getName() const;
 
+	// Returns type of transaction
+	Change getTypeOfTransaction() const;
+
+	// Sets item purchased 
+	void setItemPurchased(Item item);
+
+	// Set item purchased through unique_ptr<Item>
+	void setItemPurchased(std::unique_ptr<Item> item);
+
+	// Sets amount before transaction
+	void setAmountBefore(float amount);
+
 	// Returns amount before the transaction
 	float getAmountBefore() const;
 
+	// Sets amount after transaction
+	void setAmountAfter(float amount);
+
 	// Returns amount after the transaction
 	float getAmountAfter() const;
-
+	
 	// Returns change in balance due to transaction
 	float getChangeInBalance() const;
 
