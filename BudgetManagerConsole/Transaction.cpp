@@ -1,4 +1,5 @@
 #include "Transaction.h"
+#include <iostream>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ Transaction::Transaction(float amountBefore, float amountAfter, string name)
 	{
 		typeOfTransaction = Change::deposit;
 	}
+	cout << "not move constructor" << endl;
 }
 
 Transaction::Transaction(float amountBefore, Item item, string name)
@@ -37,6 +39,7 @@ Transaction::Transaction(float amountBefore, Item item, string name)
 		typeOfTransaction = Change::itemPurchased;
 		amountAfter = amountBefore - changeInBalance;
 	}
+	cout << "not move constructor" << endl;
 }
 
 Transaction::Transaction(float amountBefore, unique_ptr<Item> item, string name)
@@ -54,6 +57,7 @@ Transaction::Transaction(float amountBefore, unique_ptr<Item> item, string name)
 		typeOfTransaction = Change::itemPurchased;
 		amountAfter = amountBefore - changeInBalance;
 	}
+	cout << "not move constructor" << endl;
 }
 
 string Transaction::getName() const
@@ -66,41 +70,41 @@ Change Transaction::getTypeOfTransaction() const
 	return typeOfTransaction;
 }
 
-void Transaction::setItemPurchased(Item item)
-{
+//void Transaction::setItemPurchased(Item item)
+//{
 	// Create unique_ptr<Item> of item
-	auto purchasedItem = make_unique<Item>(item);
-	if (item.getCost() < amountBefore)
-	{
-		switch (typeOfTransaction)
-		{
-		case Change::itemPurchased:
+	//auto purchasedItem = make_unique<Item>(item);
+	//if (item.getCost() < amountBefore)
+	//{
+		//switch (typeOfTransaction)
+		//{
+		//case Change::itemPurchased:
 			// Switch previous item with new purchased item
-			itemPurchased = move(purchasedItem);
+			//itemPurchased = move(purchasedItem);
 			// Update amountAfter with cost of new item
-			changeInBalance = itemPurchased->getCost();
-			amountAfter = amountBefore - changeInBalance;
-			break;
-		case Change::deposit:
+			//changeInBalance = itemPurchased->getCost();
+			//amountAfter = amountBefore - changeInBalance;
+			//break;
+		//case Change::deposit:
 			// Instantiate itemPurchasd with item
-			itemPurchased = move(purchasedItem);
-			changeInBalance = itemPurchased->getCost();
-			amountAfter = amountBefore - changeInBalance;
-			typeOfTransaction = Change::itemPurchased;
-			break;
-		case Change::withdraw:
-			itemPurchased = move(purchasedItem);
-			changeInBalance = itemPurchased->getCost();
-			amountAfter = amountBefore - changeInBalance;
-			typeOfTransaction = Change::itemPurchased;
-			break;
-		}
-	}
-	else
-	{
-		return;
-	}
-}
+			//itemPurchased = move(purchasedItem);
+			//changeInBalance = itemPurchased->getCost();
+			//amountAfter = amountBefore - changeInBalance;
+			//typeOfTransaction = Change::itemPurchased;
+			//break;
+		//case Change::withdraw:
+			//itemPurchased = move(purchasedItem);
+			//changeInBalance = itemPurchased->getCost();
+			//amountAfter = amountBefore - changeInBalance;
+			//typeOfTransaction = Change::itemPurchased;
+			//break;
+		//}
+	//}
+	//else
+	//{
+		//return;
+	//}
+//}
 
 void Transaction::setItemPurchased(unique_ptr<Item> item)
 {

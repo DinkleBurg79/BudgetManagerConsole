@@ -25,10 +25,7 @@ public:
 
 	// Sets name of account
 	template <typename Name>
-	void setName(Name&& newName)
-	{
-		name = std::forward<Name>(newName);
-	}
+	void setName(Name&& newName);
 
 	// Returns name through const getter
 	std::string getName() const;
@@ -40,19 +37,23 @@ public:
 	float getBalance() const;
 
 	// Adds funds to balance
-	void addFunds(float amount, std::string name = std::string());
+	template <typename Amount = float, typename Name = std::string>
+	void addFunds(Amount amount, Name&& name = std::string());
 
 	// Remove funds from balance
-	void deductFunds(float amount, std::string name = std::string());
+	//void deductFunds(float amount, std::string name = std::string());
+	template <typename Amount = float, typename Name = std::string>
+	void deductFunds(Amount amount, Name&& name = std::string());
 
 	// Adds item to history and deducts cost from balance
-	void purchaseItem(Item purchase, std::string name = std::string());
+	template <typename Item, typename Name = std::string>
+	void purchaseItem(Item&& purchase, Name&& name = std::string());
 
 	// Adds item to history and deducts cost from balance
 	void purchaseItem(std::unique_ptr<Item> purchase, std::string name = std::string());
 
 	// Returns reference to unique_ptr<Transaction> to be edited
-	std::unique_ptr<Transaction>& editTransaction();
+	std::unique_ptr<Transaction>& editTransaction(int index);
 
 	// Returns history of deposits and withdraws
 	std::string getHistoryOfDepositsAndWithdraws();
@@ -71,3 +72,5 @@ private:
 	// List of items purchased
 	//std::vector<std::unique_ptr<Item>> itemsPurchased;
 };
+
+#include "Account.tpp.h"

@@ -146,8 +146,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Account.h" />
+    <ClInclude Include="Account.tpp.h" />
     <ClInclude Include="Transaction.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="Transaction.tpp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

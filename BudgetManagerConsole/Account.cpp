@@ -48,60 +48,6 @@ float Account::getBalance() const
 	return balance;
 }
 
-void Account::addFunds(float amount, string name)
-{
-	// Checks for negative amount added in
-	if (amount <= 0)
-	{
-		return;
-	}
-	else
-	{
-		// Make unique_ptr<Transaction> to store information about this transaction,
-		// and store this UPtr into history
-		auto deposit = make_unique<Transaction>(getBalance(), balance + amount, name);
-		history.push_back(move(deposit));
-		// Update balance
-		balance += amount;
-	}
-}
-
-void Account::deductFunds(float amount, string name)
-{
-	// Checks for overdraw or negative amount deducted
-	if (amount <= 0 || (balance - amount) < 0)
-	{
-		return;
-	}
-	else
-	{
-		// Make unique_ptr<Transaction> to store information about this transaction,
-		// and store this UPtr into history
-		auto withdraw = make_unique<Transaction>(getBalance(), balance - amount, name);
-		history.push_back(move(withdraw));
-		// Update balance
-		balance -= amount;
-	}
-}
-
-void Account::purchaseItem(Item purchase, string name)
-{
-	// Checks if cost of item is more than balance
-	if (purchase.getCost() > balance)
-	{
-		return;
-	}
-	else
-	{
-		// Make unique_ptr<Transaction> to store information about this transaction,
-		// and store this UPtr into history
-		auto purchaseUPtr = make_unique<Transaction>(balance, purchase, name);
-		balance -= purchaseUPtr->getChangeInBalance();
-		// Update balance
-		history.push_back(move(purchaseUPtr));
-	}
-}
-
 void Account::purchaseItem(unique_ptr<Item> purchase, string name)
 {
 	// Checks if cost of item is more than balance
@@ -118,6 +64,11 @@ void Account::purchaseItem(unique_ptr<Item> purchase, string name)
 		// Update balance
 		history.push_back(move(purchaseUPtr));
 	}
+}
+
+unique_ptr<Transaction>& Account::editTransaction(int index)
+{
+	return history[index];
 }
 
 string Account::getHistoryOfDepositsAndWithdraws()

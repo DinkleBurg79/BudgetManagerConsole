@@ -28,10 +28,7 @@ public:
 
 	// Sets name of transaction;
 	template <typename Name>
-	void setName(Name&& newName)
-	{
-		name = std::forward<Name>(newName);
-	}
+	void setName(Name&& newName);
 
 	// Returns name of the transaction
 	std::string getName() const;
@@ -40,7 +37,8 @@ public:
 	Change getTypeOfTransaction() const;
 
 	// Sets item purchased 
-	void setItemPurchased(Item item);
+	template <typename NewItem>
+	void setItemPurchased(NewItem&& newItem);
 
 	// Set item purchased through unique_ptr<Item>
 	void setItemPurchased(std::unique_ptr<Item> item);
@@ -71,3 +69,5 @@ private:
 	Change typeOfTransaction;
 	std::unique_ptr<Item> itemPurchased;
 };
+
+#include "Transaction.tpp.h"
