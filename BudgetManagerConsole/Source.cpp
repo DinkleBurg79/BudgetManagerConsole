@@ -54,4 +54,6 @@ int main()
 	alex.editTransaction(0)->setAmountAfter(800.00f);
 	alex.editTransaction(0)->setName("New name withdraw");
 	cout << alex.getHistory();
+
+	// CHANGE TO TEST IF I CAN ADD NEW THINGS FROM CLONE OF GITHUB REPO THAT I'VE CREATED ON ANOTHER COMPUTER
 }
